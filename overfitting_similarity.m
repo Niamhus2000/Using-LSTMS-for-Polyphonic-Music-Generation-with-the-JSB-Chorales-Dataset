@@ -1,5 +1,3 @@
-cd C:\Users\Niamh\Desktop\College\5th_year\Thesis\DataBase_T\JSB_Chorales_T\objective\Off
-
 % Written by Niamh McCann
 % 2019
    
@@ -22,12 +20,11 @@ close all;
 mylist = ls('*.txt');
 mylist = string(mylist);
 
-%test = dlmread(mylist(6));
 overfit = zeros(13, length(mylist)); 
 
 %% 
 for num = 1:length(mylist)
-    generated = dlmread(mylist(num)); %turn into matrix
+    generated = dlmread(mylist(num)); %turn text file into matrix
     [overfit_2, overfit_3, overfit_4, overfit_5, overfit_6, overfit_7, overfit_8, overfit_9, overfit_10, overfit_15, overfit_20, overfit_25, overfit_30] = similarity(generated, test);
     
     overfit(1,num) = overfit_2;
@@ -51,7 +48,7 @@ C = [transpose(mylist) ; overfit];
 function [overfit_2, overfit_3, overfit_4, overfit_5, overfit_6, overfit_7, overfit_8, overfit_9, overfit_10, overfit_15, overfit_20, overfit_25, overfit_30] = similarity(generated, test_piece)
 %function to test similarity between the generated piece against or the
 %original piece or the training data (to test for overfitting)
-%The function takes chunks of various lengths of both data and compares
+%The function takes portions of various lengths of both data and compares
 %them to each other, if they are equal they are added to a counter and this
 %counter is returned.
 
@@ -184,8 +181,8 @@ function [overfit_2, overfit_3, overfit_4, overfit_5, overfit_6, overfit_7, over
 end
 
 function training = func_training()
-    %if needed change directory 
-    cd C:\Users\Niamh\Desktop\College\5th_year\Thesis\DataBase_T\JSB_Chorales_T\train_T
+    %if needed change directory to where the training data is kept
+    %cd 
     training = textread('training_off.txt','%s', 'endofline', '\n', 'delimiter', ' ');
     [row, ~] = size(training);
     training = str2double(training);
@@ -212,5 +209,6 @@ function training = func_training()
     training = training(2:end, :);
     clear training2
     
-    cd C:\Users\Niamh\Desktop\College\5th_year\Thesis\DataBase_T\JSB_Chorales_T\objective\drive
+    % return to previous directory
+    % cd 
 end

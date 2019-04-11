@@ -1,3 +1,12 @@
+#written by Niamh McCann
+#2019
+
+#this program takes a text file of training data and separates it into input/output pairs for supervised learning
+#An LSTM model is then trained on this data for 50 epochs (approximately 12 hours)
+#A MIDI input is received and encoded into the duration and offset encoding methods
+#The system gives a prediction using a greedy best first search
+#The output is then decoded and ouptutted into MIDI format
+
 import os
 import numpy
 import math
@@ -56,7 +65,6 @@ for i in range(0, n_chars_val - seq_length, 1):
 n_seq_val = len(dataX_val)
 print ("Total Sequences val: ", n_seq_val)
 
-
 #reshape the data for input to LSTM
 X = numpy.reshape(dataX, (n_seq, seq_length,1))
 X = X/n_vocab
@@ -79,7 +87,6 @@ model_1_Off.add(Dense(n_vocab, activation='softmax'))
 adam = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=None, decay=0.0, amsgrad=False)
 model_1_Off.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
 
-
 # define the checkpoint
 filepath="weights-{epoch:02d}-{loss:.4f}-{acc:.4f}.hdf5"
 checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
@@ -90,6 +97,14 @@ history_1_Off = model_1_Off.fit(X, y, epochs=50, batch_size=128, callbacks=callb
 
 ######################################################
 #receive MIDI input and encode
+#insert input in the following format
+# in = [60, -2, -2, -2, 67, -1, 65, -2]
+# where -1 means note off
+#       -2 means no event
+#		 0 means starting rest
+#       numbers 21 - 108 inclusive are MIDI pitches representing the notes on the piano
+# each new event is a semiquaver length
+
 MIDI_input = [72, -2, -2, -2, -1, 81, -2, -2, -2, 80, -2, -2, -2, -1, 81, -2, -2, -2, 74, -2, -2, -2, -2, -2, -2, -2, -2, -1, 71, -2, -2, -2, 72, -2, -2, -2, -2, -2, -2, -2, -2, -2, 69, -2, -2, -2, -2, 67, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, 74, -2, -2, -2]
 
 #convert MIDI notation
@@ -244,6 +259,10 @@ print(''.join([int_to_char[i] for i in seed_dur]))
 filename = 'filename.hdf5'
 model_1_Off.load_weights(filename)
 model_1_Off.compile(loss='categorical_crossentropy', optimizer=adam)
+#if using duration encoding
+#patter = seed_dur
+
+#if using off encoding
 pattern = seed_off
 print ("Seed: ")
 print(''.join([int_to_char[i] for i in pattern]))
@@ -253,6 +272,7 @@ x = x/float(n_vocab)
 prediction = model_1_Off.predict(x, verbose=0)
 index = numpy.argmax(prediction)
 result = int_to_char[index]
+
 #write to new text file
 f = open("Model1_Off_piece1_S.txt", "w+")
 while index != 12:
@@ -413,10 +433,13 @@ for filename in glob.glob("*.txt"):
 		#all notes
 		new_note = note.Note(note_numbers[in_notes[i+ 2]]) #note name
 		#if using duraion encoding
-		new_note.duration.quarterLength = in_notes[i+1]/4 #
+		#new_note.duration.quarterLength = in_notes[i+1]/4 #
 		
 		#if using off encoding
-		new_note.duration.quarterLength = (in_notes[i+1]-in_notes[i])/4
+		if in_notes[i+1] < in_notes[i]:
+			continue #skip these lines as the music is not possible
+		else:
+			new_note.duration.quarterLength = (in_notes[i+1]-in_notes[i])/4
 		
 		output_notes.insert(in_notes[i]/4, new_note)
 		
