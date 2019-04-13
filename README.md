@@ -4,6 +4,8 @@ The included files were used in my dissertation, Using LSTMs for Polyphonic Musi
 The aim of this project was to integrate a polyphonic dataset with an LSTM music system for polyphonic music generation.
 
 This project introduces two new methods for encoding polyphonic music.
+The Duration encoding has 3 columns, the first is the onset of the note (in semiquaver beats), the second is the duration of the note (in semiquaver beats and the third is the MIDI note number.
+The Off encoding also has 3 columns, the first is the onset of the note (in semiquaver beats), the second is the offset of the note (in semiquaver beats) and the third is ht MIDI note number. 
 
 generate_data.m takes the MIDI dataset and encodes it using both the duration and off encoding methods.
 The encoded JSB chorales dataset is contatined, split into training, validation and testing sets.
